@@ -1,0 +1,51 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="importlib_metadata" />
+            <item index="1" class="java.lang.String" itemvalue="pyproject_hooks" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E302" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="src.TestSbl.urls.view" />
+          <option value="src.Ferme.views.Ferme" />
+          <option value="off_day.holidays" />
+          <option value="src.TestSbl.urls.Ferme" />
+          <option value="src.pages.views.Ferme" />
+          <option value="pages.calcul_date.dates_speciales" />
+          <option value="DateAdjuster.models.dates_debut_liquefaction" />
+          <option value="DateAdjuster.models.citernes" />
+          <option value="app.calculer_nombre_chauffeurs" />
+          <option value="str.camelcase" />
+          <option value="Ferme.script.liquefaction_start" />
+          <option value="Ferme.script.DateCollecte.calculate_new_liquefaction_start" />
+          <option value="Ferme.main.CalculateurDate" />
+          <option value="Ferme.models.default_adjusted_dates" />
+          <option value="demo.demo.urls.ecommerce" />
+          <option value="Ferme.main.calculate_truck_arrival_time" />
+          <option value="pages.views.yield_date_instance" />
+          <option value="Ferme.models.SimulationResult.objects" />
+          <option value="Ferme.main.calculate_cistern_transport" />
+          <option value="TestSbl.urls.cistern_view" />
+          <option value="src.shop.product_list" />
+          <option value="src.ecommerce.urls.shop" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

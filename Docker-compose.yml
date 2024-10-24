@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: ./api  # Chemin vers ton dossier API
+      dockerfile: Dockerfile  # Assurez-vous que le Dockerfile est nommé Dockerfile
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"  # Mappe le port 8000 du conteneur au port 8000 de l'hôte
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:domont95@mysql_db:3306/hairdb  # Connexion à MySQL
+      - MONGO_URI=mongodb://mongo:27017  # Connexion à MongoDB
+    depends_on:
+      - mysql_db  # Dépend de MySQL
+      - mongo  # Dépend de MongoDB
+    volumes:
+      - ./api:/app  # Monte le code source du backend pour faciliter le développement
+
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: domont95  # Définir le mot de passe pour l'utilisateur root
+      MYSQL_DATABASE: hairdb           # Créer une base de données au démarrage
+    ports:
+      - "3306:3306"  # Expose le port 3306
+    volumes:
+      - db_data:/var/lib/mysql  # Persiste les données de MySQL
+
+  mongo:
+    image: mongo:latest  # Utilise l'image la plus récente de MongoDB
+    container_name: mongo_db
+    restart: always
+    ports:
+      - "27017:27017"  # Expose MongoDB sur le port 27017 de l'hôte
+    volumes:
+      - mongo_data:/data/db  # Persiste les données de MongoDB
+
+  frontend:
+    build:
+      context: ./frontend  # Chemin vers ton dossier frontend
+      dockerfile: Dockerfile  # Assurez-vous que le Dockerfile est nommé Dockerfile
+    container_name: react_app
+    ports:
+      - "3000:3000"  # Mappe le port 3000 du conteneur au port 3000 de l'hôte
+    environment:
+      - REACT_APP_API_URL=http://web:8000  # Change localhost to web to match the service name
+    depends_on:
+      - web  # Assurez-vous que le frontend ne se lance qu'après le service web (backend)
+  test:
+    build:
+      context: ./api  # Chemin vers votre dossier API
+      dockerfile: Dockerfile
+    container_name: fastapi_test
+    depends_on:
+      - mysql_db
+      - mongo
+    environment:
+      - DATABASE_URL=mysql+pymysql://root:domont95@mysql_db:3306/hairdb
+      - MONGO_URI=mongodb://mongo:27017
+    volumes:
+      - ./api:/app  # Montez le code source
+    command: [ "pytest", "/app" ]  # Commande pour exécuter les tests
+
+
+volumes:
+  db_data:  # Volume pour MySQL
+  mongo_data:  # Volume pour MongoDB

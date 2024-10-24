@@ -1,0 +1,79 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Déclenchement sur les pushes sur la branche principale
+  pull_request:
+    branches:
+      - main  # Déclenchement sur les pull requests vers la branche principale
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Utilise l'image de base Ubuntu
+
+    services:
+      db:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: root
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}  # Utilisation des secrets
+          MYSQL_DATABASE: hairdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 3
+
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongo --eval 'db.adminCommand("ping")'" 
+          --health-interval 10s 
+          --health-timeout 5s 
+          --health-retries 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3  # Mettez à jour la version
+
+      - name: Set up Python
+        uses: actions/setup-python@v3  # Mettez à jour la version
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: |
+          pip install -r ./api/requirements.txt
+
+      - name: Run tests
+        env:
+          DATABASE_URL: mysql+pymysql://isa:${{ secrets.MYSQL_PASSWORD }}@db:3306/hairdb
+          MONGO_URI: mongodb://localhost:27017
+        run: |
+          pytest ./api/tests  # Adaptez le chemin des tests selon votre structure
+
+      - name: Build Docker containers
+        run: |
+          docker-compose build
+
+      - name: Start Docker containers
+        run: |
+          docker-compose up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          # Commandes pour vérifier la santé des services
+          sleep 15  # Attendre que les services soient prêts
+
+      - name: Run application tests
+        run: |
+          curl -f http://localhost:8000/health  # Exemple d'appel d'API pour vérifier que l'application fonctionne
+
+      - name: Stop Docker containers
+        run: |
+          docker-compose down
