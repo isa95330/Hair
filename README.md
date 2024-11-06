@@ -38,30 +38,7 @@ Automatisation du déploiement du projet avec chaque mise à jour du code source
 Docker :
 
 Utilisation de Docker pour containeriser les services backend et frontend, afin d'assurer une exécution cohérente dans différents environnements.
-Schéma de l'architecture
-scss
-Copier le code
-+---------------------+        +-----------------------+
-| Frontend (React)    | <----> | Backend (FastAPI)     |
-|                     |        |                       |
-| - Interface UI      |        | - API Restful         |
-| - Panier d'achat    |        | - Gestion des services|
-| - Authentification  |        | - Gestion des commandes|
-|                     |        | - Stripe Payment      |
-+---------------------+        | - JWT Authentication  |
-                               +-----------------------+
-                                         |
-                                         v
-                             +---------------------+
-                             | MongoDB             |
-                             | (Users, Roles)      |
-                             +---------------------+
-                                         |
-                                         v
-                             +------------------------------+
-                             | MySQL Database               |
-                             | (Orders,Category,Products)   |
-                             +------------------------------+
+
 Technologies utilisées
 Backend :
 
