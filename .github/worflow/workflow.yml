@@ -32,7 +32,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongo --eval 'db.adminCommand("ping")'" 
+          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")'" 
           --health-interval 10s 
           --health-timeout 5s 
           --health-retries 3
@@ -52,8 +52,8 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: mysql+pymysql://isa:${{ secrets.MYSQL_PASSWORD }}@db:3306/hairdb
-          MONGO_URI: mongodb://localhost:27017
+          DATABASE_URL: mysql+pymysql://root:${{ secrets.MYSQL_PASSWORD }}@db:3306/hairdb
+          MONGO_URI: mongodb://mongo:27017  # Utilisation du nom du service MongoDB
         run: |
           pytest ./api/tests  # Adaptez le chemin des tests selon votre structure
 
@@ -67,8 +67,9 @@ jobs:
 
       - name: Wait for services to be healthy
         run: |
-          # Commandes pour vérifier la santé des services
-          sleep 15  # Attendre que les services soient prêts
+          # Attend que les services MySQL et MongoDB soient en bonne santé
+          docker-compose exec mongo bash -c 'until mongo --eval "db.adminCommand(\"ping\")"; do sleep 1; done;'
+          docker-compose exec db bash -c 'until mysqladmin ping -h "localhost"; do sleep 1; done;'
 
       - name: Run application tests
         run: |
