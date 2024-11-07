@@ -28,7 +28,7 @@ jobs:
           --health-retries 3
 
       mongo:
-        image: mongo:5.0  # Assure que c'est la version stable
+        image: mongo:latest # Assure que c'est la version stable
         ports:
           - 27017:27017
         options: >-

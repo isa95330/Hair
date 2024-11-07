@@ -35,13 +35,14 @@ services:
       start_period: 30s
 
   mongo:
-    image: mongo:5.0
+    image: mongo:latest
     container_name: mongo_db
     restart: always
     ports:
       - "27017:27017"
     volumes:
-      - /tmp/mongo-data:/data/db
+      - mongo_data:/data/db
+
 
   frontend:
     build:
