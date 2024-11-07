@@ -5,7 +5,7 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.10
 WORKDIR /app
 
 # Copie le fichier requirements.txt
-COPY api/requirements.txt /app/requirements.txt
+COPY requirements.txt /app/requirements.txt
 
 # Installe le client MySQL et les dépendances Python
 RUN apt-get update && \
