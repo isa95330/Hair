@@ -1,5 +1,6 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, condecimal
+
 
 # Schéma pour la création d'un utilisateur
 class UserCreate(BaseModel):
@@ -42,7 +43,7 @@ class CategoryResponse(CategoryBase):
     id: int
 
     class Config:
-        from_attributes = True  # Remplacez orm_mode par from_attributes
+        from_attributes = True
 
 
 # Modèle de base pour les produits
@@ -54,7 +55,7 @@ class ProductBase(BaseModel):
     image: Optional[str]  # Rendre l'image optionnelle
 
     class Config:
-        from_attributes = True  # Utiliser from_attributes au lieu de orm_mode
+        from_attributes = True
 
 # Modèle utilisé pour la création d'un produit (sans ID)
 class ProductCreate(ProductBase):
@@ -65,5 +66,28 @@ class ProductResponse(ProductBase):
     id: int
 
     class Config:
-        from_attributes = True  # Remplacez orm_mode par from_attributes
+        from_attributes = True
+
+# Schéma de base pour les commandes
+class OrderBase(BaseModel):
+    user_id: str
+    total_amount: condecimal(max_digits=10, decimal_places=2)
+
+# Schéma utilisé pour la création d'une commande (sans ID)
+class OrderCreate(OrderBase):
+    pass
+
+class ShippingCreate(BaseModel):
+    user_id: str
+    address: str
+    postal_code: str
+    city: str
+    phone_number: str
+    email: str
+
+class ShippingResponse(ShippingCreate):
+    id: int
+
+    class Config:
+        from_attributes = True
 print("Schemas loaded successfully")

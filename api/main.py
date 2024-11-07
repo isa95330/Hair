@@ -5,9 +5,10 @@ from fastapi import FastAPI, HTTPException, Depends, Form, UploadFile, File, API
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from starlette.staticfiles import StaticFiles
-from models import Category, Product, get_db, ProductUpdate  # Assurez-vous que ces modèles existent
-from schemas import CategoryCreate, CategoryResponse, ProductResponse, UserResponse, UserCreate  # Assurez-vous que ces schémas existent
-from auth import create_user, login_user, verify_token, users_collection, admin_required  # Assurez-vous que cette fonction est définie dans auth.py
+from models import Category, Product, get_db, ProductUpdate, Order, Shipping
+from schemas import CategoryCreate, CategoryResponse, ProductResponse, UserResponse, UserCreate, \
+    ShippingResponse, ShippingCreate  # Assurez-vous que ces schémas existent
+from auth import create_user, login_user, verify_token, users_collection, admin_required
 import aiofiles  # Importer aiofiles pour la gestion asynchrone des fichiers
 import stripe
 
@@ -182,7 +183,43 @@ async def get_profile(token: str = Depends(verify_token)):
         email=user["email"],
         is_admin=user.get("is_admin", False)  # Inclure le champ is_admin
     )
+# Endpoint pour créer une commande
+@app.post("/orders/")
+async def create_order(user_id: str, total_amount: float, db: Session = Depends(get_db)):
+    # Vérifiez si l'utilisateur existe dans MongoDB
+    user = await users_collection.find_one({"_id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found in MongoDB")
 
+    # Créez une nouvelle commande dans MySQL
+    order = Order(user_id=user_id, total_amount=total_amount)
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+
+    return {"order_id": order.id, "total_amount": order.total_amount}
+
+
+# Endpoint pour récupérer les commandes d'un utilisateur
+@app.get("/orders/{user_id}")
+async def get_orders(user_id: str, db: Session = Depends(get_db)):
+    orders = db.query(Order).filter(Order.user_id == str(user_id)).all()
+    return orders
+
+@app.post("/shippings/", response_model=ShippingResponse)
+async def create_shipping(shipping: ShippingCreate, db: Session = Depends(get_db)):
+    # Créez une nouvelle entrée de livraison dans la base de données
+    db_shipping = Shipping(**shipping.dict())
+    db.add(db_shipping)
+    db.commit()
+    db.refresh(db_shipping)
+    return db_shipping
+
+@app.get("/shippings/{user_id}", response_model=List[ShippingResponse])
+async def get_shippings(user_id: str, db: Session = Depends(get_db)):
+    # Récupérez les informations de livraison pour un utilisateur donné
+    shippings = db.query(Shipping).filter(Shipping.user_id == user_id).all()
+    return shippings
 @app.get("/")
 async def read_root():
     return {"message": "Hello World"}

@@ -1,7 +1,7 @@
 from typing import Optional
 
 from pydantic.v1 import EmailStr, BaseModel, ConfigDict
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, create_engine
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, create_engine, DECIMAL
 from sqlalchemy.orm import relationship, sessionmaker
 from pymysql import install_as_MySQLdb
 install_as_MySQLdb()
@@ -68,5 +68,26 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     image: Optional[str] = None  # Optionnel pour permettre la mise à jour sans image
 
+class Order(Base):
+    __tablename__ = "Orders"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String(50))   # Utilisez un String pour l'ID utilisateur MongoDB
+    total_amount = Column(DECIMAL(10, 2))
+
+
+
+class Shipping(Base):
+    __tablename__ = 'shippings'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String(50))  # Assurez-vous que cela correspond à votre modèle d'utilisateur
+    address = Column(String, nullable=False)
+    postal_code = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+
+
 
 print("models loaded successfully")
+# Créez les tables
+Base.metadata.create_all(bind=engine)
