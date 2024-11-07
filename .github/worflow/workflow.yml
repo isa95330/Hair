@@ -3,21 +3,21 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main  # Déclenchement sur les pushes sur la branche principale
+      - main
   pull_request:
     branches:
-      - main  # Déclenchement sur les pull requests vers la branche principale
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Utilise l'image de base Ubuntu
+    runs-on: ubuntu-latest
 
     services:
       db:
         image: mysql:8.0
         env:
           MYSQL_USER: root
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}  # Utilisation des secrets
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           MYSQL_DATABASE: hairdb
         ports:
           - 3306:3306
@@ -28,7 +28,7 @@ jobs:
           --health-retries 3
 
       mongo:
-        image: mongo:latest
+        image: mongo:5.0  # Assure que c'est la version stable
         ports:
           - 27017:27017
         options: >-
@@ -39,10 +39,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Mettez à jour la version
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v3  # Mettez à jour la version
+        uses: actions/setup-python@v3
         with:
           python-version: '3.8'
 
@@ -50,12 +50,20 @@ jobs:
         run: |
           pip install -r ./api/requirements.txt
 
+      - name: Wait for MySQL to be healthy
+        run: |
+          docker-compose exec db bash -c 'until mysqladmin ping -h "localhost"; do sleep 1; done;'
+
+      - name: Wait for MongoDB to be healthy
+        run: |
+          docker-compose exec mongo bash -c 'until mongo --eval "db.adminCommand(\"ping\")"; do sleep 1; done;'
+
       - name: Run tests
         env:
           DATABASE_URL: mysql+pymysql://root:${{ secrets.MYSQL_PASSWORD }}@db:3306/hairdb
-          MONGO_URI: mongodb://mongo:27017  # Utilisation du nom du service MongoDB
+          MONGO_URI: mongodb://mongo:27017
         run: |
-          pytest ./api/tests  # Adaptez le chemin des tests selon votre structure
+          pytest ./api/tests
 
       - name: Build Docker containers
         run: |
@@ -65,15 +73,9 @@ jobs:
         run: |
           docker-compose up -d
 
-      - name: Wait for services to be healthy
+      - name: Run application health check
         run: |
-          # Attend que les services MySQL et MongoDB soient en bonne santé
-          docker-compose exec mongo bash -c 'until mongo --eval "db.adminCommand(\"ping\")"; do sleep 1; done;'
-          docker-compose exec db bash -c 'until mysqladmin ping -h "localhost"; do sleep 1; done;'
-
-      - name: Run application tests
-        run: |
-          curl -f http://localhost:8000/health  # Exemple d'appel d'API pour vérifier que l'application fonctionne
+          curl -f http://localhost:8000/health
 
       - name: Stop Docker containers
         run: |
