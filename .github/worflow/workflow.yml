@@ -60,7 +60,7 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: mysql+pymysql://root:${{ secrets.MYSQL_PASSWORD }}@db:3306/hairdb
+          DATABASE_URL: mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:3306/{DATABASE_NAME}"
           MONGO_URI: mongodb://mongo:27017
         run: |
           pytest ./api/tests

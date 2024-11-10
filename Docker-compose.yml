@@ -9,7 +9,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://root:domont95@mysql_db:3306/hairdb
+      - DATABASE_URL = mysql+pymysql://isadev95:domont@isadev95.mysql.pythonanywhere-services.com:3306/hairdb
+
       - MONGO_URI=mongodb://mongo:27017
     depends_on:
       - mysql_db
@@ -22,17 +23,18 @@ services:
     container_name: mysql_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: domont95
-      MYSQL_DATABASE: hairdb
+      MYSQL_ROOT_PASSWORD: domont  # Variable d'environnement
+      MYSQL_DATABASE: hairdb  # Variable d'environnement
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 10s
       retries: 5
       start_period: 30s
+
 
   mongo:
     image: mongo:latest
@@ -65,7 +67,7 @@ services:
       - mysql_db
       - mongo
     environment:
-      - DATABASE_URL=mysql+pymysql://root:domont95@mysql_db:3306/hairdb
+      - DATABASE_URL= mysql+pymysql://isadev95:domont@isadev95.mysql.pythonanywhere-services.com:3306/hairdb
       - MONGO_URI=mongodb://mongo:27017
     volumes:
       - ./api:/app

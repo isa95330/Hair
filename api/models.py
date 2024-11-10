@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from pydantic.v1 import EmailStr, BaseModel, ConfigDict
@@ -7,8 +8,13 @@ from pymysql import install_as_MySQLdb
 install_as_MySQLdb()
 from sqlalchemy.orm import declarative_base
 
-DATABASE_URL = "mysql+pymysql://root:domont95@mysql_db:3306/hairdb"
+DATABASE_USER = "isadev95"  # Utilisateur MySQL
+DATABASE_PASSWORD = "domont"  # Mot de passe MySQL
+DATABASE_HOST = "isadev95.mysql.pythonanywhere-services.com"  # Hôte MySQL
+DATABASE_NAME = "hairdb"  # Nom de la base de données
 
+DATABASE_URL = f"mysql+pymysql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:3306/{DATABASE_NAME}"
+print(DATABASE_URL)
 Base = declarative_base()
 engine = None  # Initialiser engine à None
 
